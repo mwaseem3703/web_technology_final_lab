@@ -13,11 +13,13 @@ Route::get('/', function () {
 
 // Protected Area
 Route::middleware(['auth', 'verified'])->group(function () {
-    
+    Route::post('/dashboard/generate-analytics', [TaskController::class, 'generateDashboardAnalytics'])->name('dashboard.ai-analytics');
+// Route to force inline browser viewing instead of automatic downloads
+    Route::get('/tasks/{task}/view-material', [TaskController::class, 'viewMaterial'])->name('tasks.view-material');
     // HOME: Task Management
     Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
     Route::resource('tasks', TaskController::class)->except(['index']);
-Route::get('/tasks/{task}/ai-guidance', [TaskController::class, 'fetchAiGuidance'])->name('tasks.ai-guidance');
+    Route::get('/tasks/{task}/ai-guidance', [TaskController::class, 'fetchAiGuidance'])->name('tasks.ai-guidance');
     // DASHBOARD: Analytics
     Route::get('/dashboard', [TaskController::class, 'dashboard'])->name('dashboard');
 });

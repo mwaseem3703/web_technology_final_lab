@@ -1,13 +1,13 @@
- <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Premium Management</title>
-       
 </head>
 <x-app-layout>
-   
 
-    <div x-data="{ dark: true }" :class="{ 'dark': dark }">
+    <div x-data="{ dark: localStorage.getItem('darkMode') === 'true' || true }" 
+         x-init="$watch('dark', value => localStorage.setItem('darkMode', value))"
+         :class="{ 'dark': dark }">
         
         <div class="min-h-screen bg-slate-50 dark:bg-[#0F172A] py-8 text-slate-800 dark:text-slate-200 font-sans flex flex-col transition-colors duration-300">
             <div class="max-w-[1600px] mx-auto sm:px-6 lg:px-8 w-full flex-grow">
@@ -37,15 +37,15 @@
                     
                     <div class="flex items-center gap-3 text-sm">
                         
-                        <button @click="dark = !dark" class="bg-white dark:bg-[#1E293B] hover:bg-slate-100 dark:hover:bg-[#334155] p-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-yellow-400 transition shadow-sm">
-                            <svg x-show="dark" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 4.22a1 1 0 011.415 0l.708.708a1 1 0 01-1.414 1.414l-.708-.708a1 1 0 010-1.414zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zm-4.22 4.22a1 1 0 010 1.415l-.708.708a1 1 0 01-1.414-1.414l.708-.708a1 1 0 011.415 0zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4.22-4.22a1 1 0 01-1.415 0l-.708-.708a1 1 0 011.414-1.414l.708.708a1 1 0 010 1.415zM4 10a1 1 0 01-1 1H2a1 1 0 110-2h1a1 1 0 011 1zm4.22-4.22a1 1 0 010-1.415l-.708-.708a1 1 0 011.414 1.414l-.708.708a1 1 0 01-1.415 0zM10 5a5 5 0 100 10 5 5 0 000-10z" clip-rule="evenodd"></path></svg>
-                            <svg x-show="!dark" x-cloak class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <button @click="dark = !dark" type="button" class="bg-white dark:bg-[#1E293B] hover:bg-slate-100 dark:hover:bg-[#334155] p-2.5 rounded-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-yellow-400 transition shadow-sm">
+                            <svg x-show="dark" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 a4.22 0 011.415 0l.708.708a1 1 0 01-1.414 1.414l-.708-.708a1 1 0 010-1.414zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zm-4.22 4.22a1 1 0 010 1.415l-.708.708a1 1 0 01-1.414-1.414l.708-.708a1 1 0 011.415 0zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-4.22-4.22a1 1 0 01-1.415 0l-.708-.708a1 1 0 011.414-1.414l.708.708a1 1 0 010 1.415zM4 10a1 1 0 01-1 1H2a1 1 0 110-2h1a1 1 0 011 1zm4.22-4.22a1 1 0 010-1.415l-.708-.708a1 1 0 011.414 1.414l-.708.708a1 1 0 01-1.415 0zM10 5a5 5 0 100 10 5 5 0 000-10z" clip-rule="evenodd"></path></svg>
+                            <svg x-show="!dark" style="display: none;" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                         </button>
 
                         <a href="{{ route('tasks.index') }}" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md text-white flex items-center gap-2 transition shadow-sm font-medium">
-                           <svg viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
-  <path d="M19 11h-5V6a1 1 0 0 0-2 0v5H7a1 1 0 0 0 0 2h5v5a1 1 0 0 0 2 0v-5h5a1 1 0 0 0 0-2z" fill="#FFFFFF" />
-</svg>
+                            <svg viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+                                <path d="M19 11h-5V6a1 1 0 0 0-2 0v5H7a1 1 0 0 0 0 2h5v5a1 1 0 0 0 2 0v-5h5a1 1 0 0 0 0-2z" fill="#FFFFFF" />
+                            </svg>
                             Add Task
                         </a>
 
@@ -121,6 +121,140 @@
                         </div>
                     </div>
 
+                </div>
+
+                <div class="mb-5 bg-white dark:bg-[#1E2538] rounded-xl p-6 border border-slate-200 dark:border-slate-700/50 shadow-sm transition-colors"
+                     x-data="{
+                        loading: false,
+                        analysisText: '{{ $user->ai_dashboard_analysis ? addslashes(str_replace(["\r", "\n"], '\n', $user->ai_dashboard_analysis)) : '' }}',
+                        cachedIndicator: '{{ $user->ai_analysis_cached_at ? $user->ai_analysis_cached_at->diffForHumans() : '' }}',
+                        
+                        // BULLETPROOF PARSER: Safely reads data even if formatting keys fluctuate slightly
+                        get analysisBlock() {
+                            if (!this.analysisText) return '';
+                            let cleanText = this.analysisText.replace(/\*\*/g, '');
+                            let matches = this.analysisText.match(/\*\*ANALYSIS:\*\*([\s\S]*?)(?=\*\*IMPROVEMENT|$)/i);
+                            if (matches) return matches[1].trim();
+                            
+                            // Fallback if formatting doesn't match perfectly split down the middle
+                            if (cleanText.toLowerCase().includes('improvement')) {
+                                return cleanText.split(/improvement/i)[0].trim();
+                            }
+                            return cleanText;
+                        },
+                        get improvementsBlock() {
+                            if (!this.analysisText) return [];
+                            let matches = this.analysisText.match(/\*\*IMPROVEMENT SUGGESTIONS:\*\*([\s\S]*)$/i);
+                            let blockContent = matches ? matches[1].trim() : '';
+                            
+                            if (!blockContent && this.analysisText.toLowerCase().includes('improvement')) {
+                                let parts = this.analysisText.split(/improvement suggestions:/i);
+                                blockContent = parts[1] ? parts[1].trim() : '';
+                            }
+                            
+                            if (!blockContent) return [];
+                            
+                            // Transform markdown asterisks cleanly into an iterative list array
+                            return blockContent.split('\n')
+                                                .map(line => line.replace(/^[\s*\-\d\.]+\s*/, '').trim())
+                                                .filter(line => line.length > 0);
+                        },
+
+                        fetchDashboardAi(force = false) {
+                            this.loading = true;
+                            fetch('{{ route('dashboard.ai-analytics') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({ force_refresh: force })
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if(data.analysis) {
+                                    this.analysisText = data.analysis.replace(/\r/g, '');
+                                    this.cachedIndicator = data.cached_at;
+                                }
+                                this.loading = false;
+                            })
+                            .catch(() => {
+                                this.loading = false;
+                            });
+                        }
+                     }">
+                    
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-100 dark:border-slate-700/50 pb-4 mb-5 gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg text-indigo-600 dark:text-indigo-400 text-xl font-bold">✨</div>
+                            <div>
+                                <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">
+                                    Academia.ai Cognitive Workload Profile Evaluation
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                    Generates a holistic academic progress audit based on your structural metrics.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <button @click="fetchDashboardAi(analysisText ? true : false)" type="button" :disabled="loading"
+                                class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black text-xs uppercase tracking-wide rounded-md shadow-sm transition whitespace-nowrap">
+                            <span x-text="loading ? '🔄 Recalculating Metrics...' : (analysisText ? '🔄 Refresh Progress Analysis' : '✨ Generate Profile Evaluation')"></span>
+                        </button>
+                    </div>
+
+                    <div>
+                        <div x-show="loading" class="py-12 flex flex-col items-center justify-center gap-3 text-xs font-bold text-indigo-600 dark:text-indigo-400 animate-pulse">
+                            <span class="text-2xl animate-spin">🔄</span>
+                            <span>Compiling milestone data segments, connecting to Gemini AI Core Platform...</span>
+                        </div>
+
+                        <div x-show="!analysisText && !loading" class="py-10 text-center border-2 border-dashed border-slate-200 dark:border-slate-700/60 rounded-xl bg-slate-50/50 dark:bg-slate-900/10">
+                            <h4 class="text-xs font-bold text-slate-600 dark:text-slate-400">No Performance Overview Data Logs Found</h4>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Trigger an evaluation above to review progress pacing suggestions maps.</p>
+                        </div>
+
+                        <div x-show="analysisText && !loading" x-cloak x-transition class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                            
+                            <div class="md:col-span-5 bg-gradient-to-b from-indigo-50/30 via-slate-50/20 to-transparent dark:from-indigo-950/10 dark:via-slate-900/10 p-5 rounded-xl border border-slate-200 dark:border-slate-700/60 flex flex-col justify-between transition-colors">
+                                <div>
+                                    <span class="px-2.5 py-1 text-[9px] font-black tracking-widest uppercase rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400 border border-indigo-200/20">
+                                        Pacing Evaluation Report
+                                    </span>
+                                    <p class="text-xs font-medium leading-relaxed text-slate-700 dark:text-slate-300 mt-4"
+                                       x-text="analysisBlock">
+                                    </p>
+                                </div>
+                                
+                                <div class="mt-5 border-t border-slate-200/60 dark:border-slate-700/40 pt-2.5 text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">
+                                    ⏰ Storage Sync: Cache Linked <span x-text="cachedIndicator"></span>
+                                </div>
+                            </div>
+
+                            <div class="md:col-span-7 space-y-3">
+                                <span class="text-[10px] font-black tracking-widest uppercase text-slate-400 dark:text-slate-500 block mb-1">
+                                    🎯 High-Impact Action Roadmaps
+                                </span>
+
+                                <div class="grid grid-cols-1 gap-2.5">
+                                    <template x-for="(tip, index) in improvementsBlock" :key="index">
+                                        <div class="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 hover:border-indigo-200 dark:hover:border-indigo-900/60 transition shadow-sm">
+                                            <div class="w-5 h-5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-black text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                <span x-text="index + 1"></span>
+                                            </div>
+                                            <p class="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed" x-text="tip"></p>
+                                        </div>
+                                    </template>
+                                </div>
+                                
+                                <template x-if="improvementsBlock.length === 0">
+                                    <div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line" x-text="analysisText.replace(/\*\*/g, '')">
+                                    </div>
+                                </template>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -232,7 +366,6 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             
-            // Shared styling variables (Makes charts look good on both light/dark)
             const gridColor = 'rgba(148, 163, 184, 0.1)';
             const tickColor = '#94A3B8';
 
@@ -245,7 +378,7 @@
                     datasets: [{
                         label: 'Task Count',
                         data: [{{ $pending }}, {{ $completed }}],
-                        backgroundColor: ['#FBBF24', '#4ADE80'], // Yellow and Green
+                        backgroundColor: ['#FBBF24', '#4ADE80'], 
                         borderRadius: 4,
                         barPercentage: 0.5,
                     }]
@@ -277,9 +410,9 @@
                     datasets: [{
                         data: [{{ $high }}, {{ $medium }}, {{ $low }}], 
                         backgroundColor: [
-                            '#EF4444', // Red for High
-                            '#FB923C', // Orange for Medium
-                            '#3B82F6'  // Blue for Low
+                            '#EF4444', 
+                            '#FB923C', 
+                            '#3B82F6'  
                         ],
                         borderWidth: 0,
                         hoverOffset: 4

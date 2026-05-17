@@ -12,7 +12,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password'];
+    protected $fillable = ['name', 'email', 'password', 'ai_dashboard_analysis', 'ai_analysis_cached_at'  ] ;
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -21,6 +21,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'ai_analysis_cached_at' => 'datetime',
         ];
     }
 

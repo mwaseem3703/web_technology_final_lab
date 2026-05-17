@@ -14,11 +14,12 @@ class Task extends Model
         'user_id',
         'title',
         'description',
+        'file_path',         // 👈 ADD THIS for your PDF/Word/PPT uploads!
         'priority',
         'status',
         'due_date',
-        'ai_time_estimate', // 👈 ADD THIS
-        'ai_study_plan',     // 👈 ADD THIS
+        'ai_time_estimate',  
+        'ai_study_plan',     
         'ai_study_tips',
     ];
 

@@ -20,6 +20,7 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
+   /**
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
@@ -28,7 +29,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // FIX: Redirect to 'tasks.index' instead of 'dashboard'
+        return redirect()->intended(route('tasks.index', absolute: false));
     }
 
     /**

@@ -77,7 +77,7 @@
                                 <div class="font-bold text-gray-900 dark:text-gray-100 text-lg {{ $task->status === 'Completed' ? 'line-through opacity-50' : '' }}">{{ $task->title }}</div>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 {{ $task->status === 'Completed' ? 'line-through opacity-50' : '' }}">{{ $task->description ?? 'No description provided.' }}</p>
 
-                                <div class="mt-3" x-data="{ 
+                                <div class="mt-3 flex flex-wrap items-center gap-2" x-data="{ 
                                     openAi: false, 
                                     loading: false, 
                                     loaded: false,
@@ -101,8 +101,8 @@
                                                     this.loading = false;
                                                     this.aiData = { 
                                                         time_estimate: '3-4 hours', 
-                                                        study_plan: 'Error reaching API backend network streams.', 
-                                                        study_tips: 'Review code parameters configurations.' 
+                                                        study_plan: 'Error matching context variables across backend network paths.', 
+                                                        study_tips: 'Verify database structural allocations.' 
                                                     };
                                                 });
                                         }
@@ -112,13 +112,19 @@
                                         <span x-text="openAi ? '✨ Hide Guide' : '✨ Get AI Guidance'"></span>
                                     </button>
 
-                                    <div x-show="openAi" x-cloak x-transition class="mt-4 p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                                   @if($task->file_path)
+<a href="{{ route('tasks.view-material', $task) }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs transition border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
+    📁 View Material Live
+</a>
+@endif
+
+                                    <div x-show="openAi" x-cloak x-transition class="w-full mt-4 p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-xl border border-blue-100 dark:border-blue-900/30">
                                         <p class="text-[10px] font-black text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-2">
                                             Academia.ai Copilot Real-Time Diagnostics
                                         </p>
                                         
                                         <div x-show="loading" class="py-4 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 animate-pulse flex items-center justify-center gap-2">
-                                            🔄 Querying payload metadata, fetching from Gemini 2.5-Flash...
+                                            🔄 Processing variables, compiling metrics data...
                                         </div>
 
                                         <div x-show="!loading" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-gray-600 dark:text-gray-300">
@@ -179,11 +185,13 @@
 
     <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <div class="bg-white dark:bg-gray-800 w-full max-w-xl rounded-3xl p-8 shadow-2xl overflow-hidden transition-colors" @click.away="showModal = false">
-            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white" x-text="isEdit ? 'Update Task' : 'Add New Task'"></h2>
+            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white" x-text="isEdit ? 'Update Task Workspace' : 'Add New Task Resource'"></h2>
             
-            <form :action="isEdit ? `/tasks/${currentTask.id}` : '/tasks'" method="POST">
+            <form :action="isEdit ? `/tasks/${currentTask.id}` : '/tasks'" method="POST" enctype="multipart/form-data">
                 @csrf
                 <template x-if="isEdit"><input type="hidden" name="_method" value="PATCH"></template>
+
+                <input type="hidden" name="remove_file" :value="removeFileFlag">
 
                 <div class="grid grid-cols-1 gap-5">
                     <input type="text" name="title" x-model="currentTask.title" placeholder="Task Title" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 dark:text-white rounded-xl p-3 outline-none focus:ring-2 ring-indigo-500 placeholder-gray-400 dark:placeholder-gray-500" required>
@@ -218,6 +226,41 @@
                             </select>
                         </div>
                     </div>
+
+                    <div class="mt-2">
+                        <label class="text-xs text-gray-500 dark:text-gray-400 ml-1">Helping Reference Document (Optional: .pdf, .docx, .pptx)</label>
+                        <div class="mt-1.5 flex items-center justify-center w-full">
+                            <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/40 transition">
+                                <div class="flex flex-col items-center justify-center pt-3 pb-4">
+                                    <svg class="w-6 h-6 mb-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Click to select file path</p>
+                                </div>
+                                <input type="file" name="attachment" class="hidden" @change="onFileSelected($event)" />
+                            </label>
+                        </div>
+
+                        <template x-if="selectedFileName">
+                            <div class="mt-2.5 flex items-center gap-2 p-2 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/70 dark:border-indigo-900/30">
+                                <span class="text-sm">📎</span>
+                                <div class="text-xs truncate text-indigo-600 dark:text-indigo-400 font-semibold flex-grow">
+                                    Selected: <span x-text="selectedFileName"></span> (<span x-text="selectedFileSize"></span>)
+                                </div>
+                                <button type="button" @click="clearFileSelection()" class="text-xs font-black text-gray-400 hover:text-red-500 px-1">✕</button>
+                            </div>
+                        </template>
+
+                        <template x-if="isEdit && currentTask.file_path && !removeFileFlag">
+                            <div class="mt-2.5 flex items-center justify-between p-2 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700">
+                                <span class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[70%]">📁 Has existing course attachment document</span>
+                                <button type="button" @click="removeFileFlag = 1" class="text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 px-2.5 py-1 rounded-lg hover:bg-red-100 transition shadow-sm border border-red-200/20">
+                                    Remove File
+                                </button>
+                            </div>
+                        </template>
+                        <template x-if="removeFileFlag">
+                            <p class="text-[11px] text-red-500 font-medium mt-2">🛑 Existing document marked for deletion upon update execution.</p>
+                        </template>
+                    </div>
                 </div>
 
                 <div class="mt-8 flex gap-4">
@@ -227,7 +270,7 @@
             </form>
         </div>
     </div>
-    
+
     <style>
         .dark .style-color-scheme { color-scheme: dark; }
     </style>
@@ -239,6 +282,9 @@
                 search: '',
                 showModal: false,
                 isEdit: false,
+                removeFileFlag: 0,
+                selectedFileName: '', // Live state variable for file name
+                selectedFileSize: '', // Live state variable for file sizes metric
                 currentTask: {},
                 
                 init() {
@@ -249,16 +295,39 @@
                 
                 openCreateModal() {
                     this.isEdit = false;
+                    this.removeFileFlag = 0;
+                    this.selectedFileName = '';
+                    this.selectedFileSize = '';
                     this.currentTask = { priority: 'Medium', status: 'Pending' };
                     this.showModal = true;
                 },
                 
                 openEditModal(task) {
                     this.isEdit = true;
+                    this.removeFileFlag = 0;
+                    this.selectedFileName = '';
+                    this.selectedFileSize = '';
                     task.start_date = task.start_date ? task.start_date.substring(0,16) : '';
                     task.due_date = task.due_date ? task.due_date.substring(0,16) : '';
                     this.currentTask = {...task};
                     this.showModal = true;
+                },
+
+                // FIX: Added live file metadata reader logic loops inside client engine
+                onFileSelected(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        this.selectedFileName = file.name;
+                        this.selectedFileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                        this.removeFileFlag = 0; // Uploading clears out pending removal queues
+                    }
+                },
+
+                clearFileSelection() {
+                    this.selectedFileName = '';
+                    this.selectedFileSize = '';
+                    const input = document.querySelector('input[type="file"]');
+                    if (input) input.value = ''; // Hard drop file selection references from input node
                 },
 
                 matchesSearch(title, desc) {
