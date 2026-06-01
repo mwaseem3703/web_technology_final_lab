@@ -67,6 +67,7 @@
                             <th class="p-5">Task Details & AI Coaching</th>
                             <th class="p-5">Deadline Remaining</th>
                             <th class="p-5 text-center">Priority</th>
+                            <th class="p-5 text-center">Status</th>
                             <th class="p-5 text-center">Actions</th>
                         </tr>
                     </thead>
@@ -81,8 +82,11 @@
                                     openAi: false, 
                                     loading: false, 
                                     loaded: false,
+                                    isCompleted: {{ $task->status === 'Completed' ? 'true' : 'false' }},
                                     aiData: { time_estimate: '', study_plan: '', study_tips: '' },
                                     getGuidance() {
+                                        if (this.isCompleted) return; 
+
                                         if (this.openAi) {
                                             this.openAi = false;
                                             return;
@@ -108,23 +112,26 @@
                                         }
                                     }
                                 }">
-                                    <button @click="getGuidance()" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold text-xs transition border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
+                                    <button @click="getGuidance()" type="button" 
+                                        :disabled="isCompleted"
+                                        :class="isCompleted ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:bg-indigo-100 dark:hover:bg-indigo-500/20'"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold text-xs transition border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
                                         <span x-text="openAi ? '✨ Hide Guide' : '✨ Get AI Guidance'"></span>
                                     </button>
 
                                    @if($task->file_path)
-<a href="{{ route('tasks.view-material', $task) }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs transition border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
-    📁 View Material Live
-</a>
-@endif
+                                    <a href="{{ route('tasks.view-material', $task) }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-xs transition border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
+                                        📁 View Attached File
+                                    </a>
+                                    @endif
 
                                     <div x-show="openAi" x-cloak x-transition class="w-full mt-4 p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-xl border border-blue-100 dark:border-blue-900/30">
                                         <p class="text-[10px] font-black text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-2">
-                                            Academia.ai Copilot Real-Time Diagnostics
+                                            AI Processing Results:
                                         </p>
                                         
                                         <div x-show="loading" class="py-4 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 animate-pulse flex items-center justify-center gap-2">
-                                            🔄 Processing variables, compiling metrics data...
+                                            🔄 AI Processing data for better result...
                                         </div>
 
                                         <div x-show="!loading" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-gray-600 dark:text-gray-300">
@@ -152,6 +159,13 @@
                                     {{ $task->priority }}
                                 </span>
                             </td>
+                             <td class="p-5 text-center align-top">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide
+                                    {{ $task->status == 'Completed' ? 'bg-green-100 text-green-600 dark:bg-green-500/20 dark:text-green-400' : 'bg-gray-300 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400' }}">
+                                    {{ $task->status }}
+                                </span>
+                            </td>
+                            
                             <td class="p-5 align-top">
                                 <div class="flex justify-center gap-4">
                                     <button @click="openEditModal({{ json_encode($task) }})" class="text-indigo-600 dark:text-indigo-400 hover:underline font-medium text-sm">Edit</button>
@@ -164,7 +178,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="p-16 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="5" class="p-16 text-center text-gray-500 dark:text-gray-400">
                                 No tasks found. Click "Add New Task" to get started!
                             </td>
                         </tr>
@@ -184,88 +198,122 @@
     </footer>
 
     <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div class="bg-white dark:bg-gray-800 w-full max-w-xl rounded-3xl p-8 shadow-2xl overflow-hidden transition-colors" @click.away="showModal = false">
-            <h2 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white" x-text="isEdit ? 'Update Task Workspace' : 'Add New Task Resource'"></h2>
+        <div class="bg-white dark:bg-gray-800 w-full max-w-xl rounded-3xl p-6 shadow-2xl overflow-hidden transition-colors" @click.away="showModal = false">
+            <h2 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white" x-text="isEdit ? 'Update Task Workspace' : 'Add New Task Resource'"></h2>
             
+            <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+                <button type="button" @click="if(validateStep1()) step = 1" :class="step === 1 ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 border-b-2 font-semibold text-sm transition-colors w-1/2 text-center">Detail of Task</button>
+                <button type="button" @click="if(validateStep1()) step = 2" :class="step === 2 ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'" class="px-4 py-3 border-b-2 font-semibold text-sm transition-colors w-1/2 text-center">File Upload</button>
+            </div>
+
             <form :action="isEdit ? `/tasks/${currentTask.id}` : '/tasks'" method="POST" enctype="multipart/form-data">
                 @csrf
                 <template x-if="isEdit"><input type="hidden" name="_method" value="PATCH"></template>
-
                 <input type="hidden" name="remove_file" :value="removeFileFlag">
 
-                <div class="grid grid-cols-1 gap-5">
-                    <input type="text" name="title" x-model="currentTask.title" placeholder="Task Title" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 dark:text-white rounded-xl p-3 outline-none focus:ring-2 ring-indigo-500 placeholder-gray-400 dark:placeholder-gray-500" required>
+                <div class="relative h-[380px] w-full">
                     
-                    <textarea name="description" x-model="currentTask.description" placeholder="Task details and description..." class="w-full bg-transparent border border-gray-300 dark:border-gray-600 dark:text-white rounded-xl p-3 outline-none focus:ring-2 ring-indigo-500 placeholder-gray-400 dark:placeholder-gray-500"></textarea>
-                    
-                    <div class="grid grid-cols-2 gap-4">
+                    <div x-show="step === 1" x-transition.opacity.duration.300ms class="absolute inset-0 flex flex-col gap-3">
                         <div>
-                            <label class="text-xs text-gray-500 dark:text-gray-400 ml-1">Start Date</label>
-                            <input type="datetime-local" name="start_date" x-model="currentTask.start_date" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 dark:text-white rounded-xl p-3 text-sm focus:ring-2 ring-indigo-500 outline-none style-color-scheme">
+                            <input type="text" name="title" x-model="currentTask.title" @input="errors.title = false" placeholder="Task Title" 
+                                class="w-full bg-transparent border dark:text-white rounded-xl p-2.5 outline-none focus:ring-2 transition placeholder-gray-400 dark:placeholder-gray-500"
+                                :class="errors.title ? 'border-red-500 ring-1 ring-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-indigo-500'" required>
+                            <p x-show="errors.title" x-cloak class="text-xs text-red-500 mt-1 ml-1 font-medium">Task title is required.</p>
                         </div>
+                        
                         <div>
-                            <label class="text-xs text-gray-500 dark:text-gray-400 ml-1">Due Date</label>
-                            <input type="datetime-local" name="due_date" x-model="currentTask.due_date" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 dark:text-white rounded-xl p-3 text-sm focus:ring-2 ring-indigo-500 outline-none style-color-scheme" required>
+                            <textarea name="description" x-model="currentTask.description" @input="errors.description = false" placeholder="Task details and description..." 
+                                class="w-full h-20 resize-none bg-transparent border dark:text-white rounded-xl p-2.5 outline-none focus:ring-2 transition placeholder-gray-400 dark:placeholder-gray-500"
+                                :class="errors.description ? 'border-red-500 ring-1 ring-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-indigo-500'" required></textarea>
+                            <p x-show="errors.description" x-cloak class="text-xs text-red-500 mt-1 ml-1 font-medium">Description is required.</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs ml-1 font-medium" :class="errors.start_date ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'">Start Date</label>
+                                <input type="datetime-local" name="start_date" x-model="currentTask.start_date" @change="errors.start_date = false" 
+                                    class="w-full bg-transparent border dark:text-white rounded-xl p-2.5 text-sm focus:ring-2 outline-none style-color-scheme transition"
+                                    :class="errors.start_date ? 'border-red-500 ring-1 ring-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-indigo-500'" required>
+                                <p x-show="errors.start_date" x-cloak class="text-xs text-red-500 mt-1 ml-1 font-medium">Start date is required.</p>
+                            </div>
+                            <div>
+                                <label class="text-xs ml-1 font-medium" :class="errors.due_date ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'">Due Date</label>
+                                <input type="datetime-local" name="due_date" x-model="currentTask.due_date" @change="errors.due_date = false" 
+                                    class="w-full bg-transparent border dark:text-white rounded-xl p-2.5 text-sm focus:ring-2 outline-none style-color-scheme transition"
+                                    :class="errors.due_date ? 'border-red-500 ring-1 ring-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-indigo-500'" required>
+                                <p x-show="errors.due_date" x-cloak class="text-xs text-red-500 mt-1 ml-1 font-medium">Due date is required.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs text-gray-500 dark:text-gray-400 ml-1">Priority</label>
+                                <select name="priority" x-model="currentTask.priority" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 dark:text-white rounded-xl p-2.5 text-sm focus:ring-2 ring-indigo-500 outline-none">
+                                    <option value="Low" class="dark:bg-gray-800 text-black dark:text-white">Low Priority</option>
+                                    <option value="Medium" class="dark:bg-gray-800 text-black dark:text-white">Medium Priority</option>
+                                    <option value="High" class="dark:bg-gray-800 text-black dark:text-white">High Priority</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-500 dark:text-gray-400 ml-1">Status</label>
+                                <select name="status" x-model="currentTask.status" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 dark:text-white rounded-xl p-2.5 text-sm focus:ring-2 ring-indigo-500 outline-none">
+                                    <option value="Pending" class="dark:bg-gray-800 text-black dark:text-white">Pending</option>
+                                    <option value="Completed" class="dark:bg-gray-800 text-black dark:text-white">Completed</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-xs text-gray-500 dark:text-gray-400 ml-1">Priority</label>
-                            <select name="priority" x-model="currentTask.priority" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 dark:text-white rounded-xl p-3 text-sm focus:ring-2 ring-indigo-500 outline-none">
-                                <option value="Low" class="dark:bg-gray-800 text-black dark:text-white">Low Priority</option>
-                                <option value="Medium" class="dark:bg-gray-800 text-black dark:text-white">Medium Priority</option>
-                                <option value="High" class="dark:bg-gray-800 text-black dark:text-white">High Priority</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-500 dark:text-gray-400 ml-1">Status</label>
-                            <select name="status" x-model="currentTask.status" class="w-full bg-transparent border border-gray-300 dark:border-gray-600 dark:text-white rounded-xl p-3 text-sm focus:ring-2 ring-indigo-500 outline-none">
-                                <option value="Pending" class="dark:bg-gray-800 text-black dark:text-white">Pending</option>
-                                <option value="Completed" class="dark:bg-gray-800 text-black dark:text-white">Completed</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="mt-2">
-                        <label class="text-xs text-gray-500 dark:text-gray-400 ml-1">Helping Reference Document (Optional: .pdf, .docx, .pptx)</label>
-                        <div class="mt-1.5 flex items-center justify-center w-full">
-                            <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/40 transition">
-                                <div class="flex flex-col items-center justify-center pt-3 pb-4">
-                                    <svg class="w-6 h-6 mb-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Click to select file path</p>
-                                </div>
-                                <input type="file" name="attachment" class="hidden" @change="onFileSelected($event)" />
-                            </label>
-                        </div>
-
-                        <template x-if="selectedFileName">
-                            <div class="mt-2.5 flex items-center gap-2 p-2 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/70 dark:border-indigo-900/30">
-                                <span class="text-sm">📎</span>
-                                <div class="text-xs truncate text-indigo-600 dark:text-indigo-400 font-semibold flex-grow">
-                                    Selected: <span x-text="selectedFileName"></span> (<span x-text="selectedFileSize"></span>)
-                                </div>
-                                <button type="button" @click="clearFileSelection()" class="text-xs font-black text-gray-400 hover:text-red-500 px-1">✕</button>
+                    <div x-show="step === 2" x-cloak x-transition.opacity.duration.300ms class="absolute inset-0 flex flex-col gap-4">
+                        <div class="mt-1">
+                            <label class="text-xs text-gray-500 dark:text-gray-400 ml-1">Helping Reference Document (Optional: .pdf, .docx, .pptx)</label>
+                            <div class="mt-2 flex items-center justify-center w-full">
+                                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/40 transition">
+                                    <div class="flex flex-col items-center justify-center pt-3 pb-4">
+                                        <svg class="w-10 h-10 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Click to select file path</p>
+                                    </div>
+                                    <input type="file" name="attachment" class="hidden" @change="onFileSelected($event)" />
+                                </label>
                             </div>
-                        </template>
 
-                        <template x-if="isEdit && currentTask.file_path && !removeFileFlag">
-                            <div class="mt-2.5 flex items-center justify-between p-2 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700">
-                                <span class="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[70%]">📁 Has existing course attachment document</span>
-                                <button type="button" @click="removeFileFlag = 1" class="text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 px-2.5 py-1 rounded-lg hover:bg-red-100 transition shadow-sm border border-red-200/20">
-                                    Remove File
-                                </button>
-                            </div>
-                        </template>
-                        <template x-if="removeFileFlag">
-                            <p class="text-[11px] text-red-500 font-medium mt-2">🛑 Existing document marked for deletion upon update execution.</p>
-                        </template>
+                            <template x-if="selectedFileName">
+                                <div class="mt-4 flex items-center gap-3 p-3 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/70 dark:border-indigo-900/30">
+                                    <span class="text-xl">📎</span>
+                                    <div class="text-sm truncate text-indigo-600 dark:text-indigo-400 font-semibold flex-grow">
+                                        Selected: <span x-text="selectedFileName"></span> (<span x-text="selectedFileSize"></span>)
+                                    </div>
+                                    <button type="button" @click="clearFileSelection()" class="text-sm font-black text-gray-400 hover:text-red-500 px-2">✕</button>
+                                </div>
+                            </template>
+
+                            <template x-if="isEdit && currentTask.file_path && !removeFileFlag">
+                                <div class="mt-4 flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700">
+                                    <span class="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[70%]">📁 Has existing course attachment document</span>
+                                    <button type="button" @click="removeFileFlag = 1" class="text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 px-3 py-1.5 rounded-lg hover:bg-red-100 transition shadow-sm border border-red-200/20">
+                                        Remove File
+                                    </button>
+                                </div>
+                            </template>
+                            <template x-if="removeFileFlag">
+                                <p class="text-xs text-red-500 font-medium mt-3">🛑 Existing document marked for deletion upon update execution.</p>
+                            </template>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-8 flex gap-4">
-                    <button type="button" @click="showModal = false" class="flex-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 py-3 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition font-medium">Cancel</button>
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition" x-text="isEdit ? 'Save Changes' : 'Create Task'"></button>
+                <div class="mt-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+                    
+                    <div x-show="step === 1" class="flex w-full gap-4">
+                        <button type="button" @click="showModal = false" class="w-1/2 py-2.5 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition font-bold shadow-sm">Cancel</button>
+                        <button type="button" @click="if(validateStep1()) step = 2" class="w-1/2 py-2.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition shadow-sm">Next</button>
+                    </div>
+
+                    <div x-show="step === 2" x-cloak class="flex w-full gap-4">
+                        <button type="button" @click="step = 1" class="w-1/2 py-2.5 bg-gray-100 dark:bg-gray-700 dark:text-gray-200 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition font-bold shadow-sm">Back</button>
+                        <button type="submit" class="w-1/2 py-2.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition shadow-sm" x-text="isEdit ? 'Save Changes' : 'Add'"></button>
+                    </div>
+                    
                 </div>
             </form>
         </div>
@@ -282,10 +330,12 @@
                 search: '',
                 showModal: false,
                 isEdit: false,
+                step: 1,
                 removeFileFlag: 0,
-                selectedFileName: '', // Live state variable for file name
-                selectedFileSize: '', // Live state variable for file sizes metric
-                currentTask: {},
+                selectedFileName: '', 
+                selectedFileSize: '', 
+                currentTask: { title: '', description: '', start_date: '', due_date: '', priority: 'Medium', status: 'Pending' },
+                errors: { title: false, description: false, start_date: false, due_date: false },
                 
                 init() {
                     this.$watch('darkMode', value => {
@@ -293,33 +343,50 @@
                     });
                 },
                 
+                resetErrors() {
+                    this.errors = { title: false, description: false, start_date: false, due_date: false };
+                },
+
+                validateStep1() {
+                    this.errors.title = !this.currentTask.title || this.currentTask.title.trim() === '';
+                    this.errors.description = !this.currentTask.description || this.currentTask.description.trim() === '';
+                    this.errors.start_date = !this.currentTask.start_date;
+                    this.errors.due_date = !this.currentTask.due_date;
+
+                    // Returns true if NO errors exist
+                    return !(this.errors.title || this.errors.description || this.errors.start_date || this.errors.due_date);
+                },
+
                 openCreateModal() {
                     this.isEdit = false;
+                    this.step = 1; 
                     this.removeFileFlag = 0;
                     this.selectedFileName = '';
                     this.selectedFileSize = '';
-                    this.currentTask = { priority: 'Medium', status: 'Pending' };
+                    this.currentTask = { title: '', description: '', start_date: '', due_date: '', priority: 'Medium', status: 'Pending' };
+                    this.resetErrors();
                     this.showModal = true;
                 },
                 
                 openEditModal(task) {
                     this.isEdit = true;
+                    this.step = 1; 
                     this.removeFileFlag = 0;
                     this.selectedFileName = '';
                     this.selectedFileSize = '';
                     task.start_date = task.start_date ? task.start_date.substring(0,16) : '';
                     task.due_date = task.due_date ? task.due_date.substring(0,16) : '';
                     this.currentTask = {...task};
+                    this.resetErrors();
                     this.showModal = true;
                 },
 
-                // FIX: Added live file metadata reader logic loops inside client engine
                 onFileSelected(event) {
                     const file = event.target.files[0];
                     if (file) {
                         this.selectedFileName = file.name;
                         this.selectedFileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
-                        this.removeFileFlag = 0; // Uploading clears out pending removal queues
+                        this.removeFileFlag = 0; 
                     }
                 },
 
@@ -327,7 +394,7 @@
                     this.selectedFileName = '';
                     this.selectedFileSize = '';
                     const input = document.querySelector('input[type="file"]');
-                    if (input) input.value = ''; // Hard drop file selection references from input node
+                    if (input) input.value = ''; 
                 },
 
                 matchesSearch(title, desc) {
