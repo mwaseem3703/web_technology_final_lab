@@ -228,6 +228,9 @@ class TaskController extends Controller
     /**
      * 5. SMART-CACHING ON-THE-FLY AI ENGINE
      */
+  /**
+     * 5. SMART-CACHING ON-THE-FLY AI ENGINE
+     */
     public function fetchAiGuidance(Task $task)
     {
         if ($task->user_id !== auth()->id()) {
@@ -256,27 +259,44 @@ class TaskController extends Controller
             Description: '{$task->description}'
             Priority: '{$task->priority}'
             
-            Provide your response strictly in this exact JSON format. Keep answers extremely short, ultra-concise, and restricted to maximum 5-6 sentence bullet points so it fits on a clean UI card layout view:
-            {
-                \"time_estimate\": \"X hours total\",
-                \"study_plan\": \"1. Brief action step. 2. Next quick milestone.\",
-                \"study_tips\": \"Provide one single short target metric hint to secure an A grade.\"
-            }";
+            Provide ultra-concise recommendations suited for a clean UI card layout view.";
 
             $response = Http::withHeaders(['Content-Type' => 'application/json'])
                             ->timeout(12)
                             ->post($url, [
-                                'contents' => [['parts' => [['text' => $prompt]]]]
+                                'contents' => [['parts' => [['text' => $prompt]]]],
+                                // Enforce strict JSON output with specified schema types
+                                'generationConfig' => [
+                                    'responseMimeType' => 'application/json',
+                                    'responseSchema' => [
+                                        'type' => 'OBJECT',
+                                        'properties' => [
+                                            'time_estimate' => [
+                                                'type' => 'STRING', 
+                                                'description' => 'Estimated time required, e.g., 3 hours total'
+                                            ],
+                                            'study_plan' => [
+                                                'type' => 'STRING', 
+                                                'description' => 'Short bulleted or numbered step-by-step milestone plan.'
+                                            ],
+                                            'study_tips' => [
+                                                'type' => 'STRING', 
+                                                'description' => 'One high-impact metric action item to secure top marks.'
+                                            ]
+                                        ],
+                                        'required' => ['time_estimate', 'study_plan', 'study_tips']
+                                    ]
+                                ]
                             ]);
 
             if ($response->successful()) {
-                $rawText = $response->json()['candidates'][0]['content']['parts'][0]['text'];
-                $cleanJson = str_replace(['```json', '```'], '', $rawText);
-                $result = json_decode(trim($cleanJson), true);
+                $rawJson = $response->json()['candidates'][0]['content']['parts'][0]['text'];
+                $result = json_decode(trim($rawJson), true);
 
-                $time = $result['time_estimate'] ?? $result['time'] ?? '2-3 hours total';
-                $plan = $result['study_plan'] ?? $result['plan'] ?? '1. Review requirements. 2. Build core modules.';
-                $tips = $result['study_tips'] ?? $result['tips'] ?? 'Track system evaluation goals closely.';
+                // Fallbacks in case of unexpected structural anomalies
+                $time = $result['time_estimate'] ?? '2-3 hours total';
+                $plan = $result['study_plan'] ?? '1. Review requirements. 2. Build core modules.';
+                $tips = $result['study_tips'] ?? 'Track system evaluation goals closely.';
 
                 // Cache metrics straight into your database columns
                 $task->update([
@@ -295,9 +315,13 @@ class TaskController extends Controller
             return response()->json(['error' => 'Google response fault.'], 500);
 
         } catch (\Exception $e) {
+            // Logs the error to storage/logs/laravel.log for underlying connectivity tracing
+            \Log::error('Gemini Fetch Error: ' . $e->getMessage());
+
+            // Clean presentation fallback directly without polluting database records
             return response()->json([
                 'time_estimate' => '3 hours total',
-                'study_plan' => '1. Review lecture details. 2. Execute verification maps builds.',
+                'study_plan' => "1. Review lecture details.\n2. Execute verification maps builds.",
                 'study_tips' => 'Analyze core target parameters to capture top marks grades targets.'
             ]);
         }
