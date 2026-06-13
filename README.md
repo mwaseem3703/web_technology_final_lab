@@ -1,5 +1,7 @@
 # Task Management & AI Analyzer (CampusTask-Pro)
 
+### 🌐 Live Demo: [https://02email.online/](https://02email.online/)
+
 A centralized, AI-enhanced productivity system developed specifically to cater to the rigorous demands of students. This platform unifies assignment tracking, secure lecture material storage, and advanced Artificial Intelligence study guidance (powered by Google Gemini 2.5 Flash) into a single, intuitive interface.
 
 ## 🚀 Features
