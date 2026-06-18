@@ -4,9 +4,7 @@
 
 ### 📺 Video Demonstration
 
-### 📺 Video Demonstration
-
-<video src="video-demo.mp4" autoplay loop muted playsinline width="100%" poster="screenshot/landing-page.png">
+<video src="https://raw.githubusercontent.com/mwaseem3703/web_technology_final_lab/main/video-demo.mp4" autoplay loop muted playsinline width="100%" poster="screenshot/landing-page.png">
   Your browser does not support the video tag.
 </video>
 
