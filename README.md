@@ -2,6 +2,14 @@
 
 ### 🌐 Live Demo: [https://02email.online/](https://02email.online/)
 
+### 📺 Video Demonstration
+
+<video src="video-demo.mp4" controls width="100%" poster="screenshot/landing-page.png">
+  Your browser does not support the video tag.
+</video>
+
+---
+
 A centralized, AI-enhanced productivity system developed specifically to cater to the rigorous demands of students. This platform unifies assignment tracking, secure lecture material storage, and advanced Artificial Intelligence study guidance (powered by Google Gemini 2.5 Flash) into a single, intuitive interface.
 
 ## 🚀 Features
